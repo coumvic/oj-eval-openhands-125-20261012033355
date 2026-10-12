@@ -1,4 +1,4 @@
-#include <iostream>
+#include <cstdio>
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
@@ -47,15 +47,12 @@ public:
 };
 
 int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    
     int t;
-    cin >> t;
+    scanf("%d", &t);
     
     while (t--) {
         int n;
-        cin >> n;
+        scanf("%d", &n);
         
         vector<pair<pair<long long, long long>, int>> constraints;
         constraints.reserve(n);
@@ -66,7 +63,7 @@ int main() {
         for (int i = 0; i < n; i++) {
             long long x, y;
             int e;
-            cin >> x >> y >> e;
+            scanf("%lld %lld %d", &x, &y, &e);
             constraints.emplace_back(make_pair(x, y), e);
             all_values.push_back(x);
             all_values.push_back(y);
@@ -107,7 +104,7 @@ int main() {
             }
         }
         
-        cout << (possible ? "YES" : "NO") << "\n";
+        printf("%s\n", possible ? "YES" : "NO");
     }
     
     return 0;

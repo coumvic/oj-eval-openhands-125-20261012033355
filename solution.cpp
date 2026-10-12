@@ -6,25 +6,28 @@ using namespace std;
 
 class UnionFind {
 private:
-    unordered_map<long long, long long> parent;
-    unordered_map<long long, long long> rank;
+    vector<int> parent;
+    vector<int> rank;
     
 public:
-    long long find(long long x) {
-        if (parent.find(x) == parent.end()) {
-            parent[x] = x;
-            rank[x] = 0;
-            return x;
+    UnionFind(int size) {
+        parent.resize(size);
+        rank.resize(size, 0);
+        for (int i = 0; i < size; i++) {
+            parent[i] = i;
         }
+    }
+    
+    int find(int x) {
         if (parent[x] != x) {
             parent[x] = find(parent[x]);
         }
         return parent[x];
     }
     
-    void unite(long long x, long long y) {
-        long long rootX = find(x);
-        long long rootY = find(y);
+    void unite(int x, int y) {
+        int rootX = find(x);
+        int rootY = find(y);
         
         if (rootX == rootY) return;
         
@@ -38,7 +41,7 @@ public:
         }
     }
     
-    bool connected(long long x, long long y) {
+    bool connected(int x, int y) {
         return find(x) == find(y);
     }
 };
@@ -57,19 +60,36 @@ int main() {
         vector<pair<pair<long long, long long>, int>> constraints;
         constraints.reserve(n);
         
+        vector<long long> all_values;
+        all_values.reserve(n * 2);
+        
         for (int i = 0; i < n; i++) {
             long long x, y;
             int e;
             cin >> x >> y >> e;
             constraints.emplace_back(make_pair(x, y), e);
+            all_values.push_back(x);
+            all_values.push_back(y);
         }
         
-        UnionFind uf;
+        // Coordinate compression
+        sort(all_values.begin(), all_values.end());
+        all_values.erase(unique(all_values.begin(), all_values.end()), all_values.end());
+        
+        unordered_map<long long, int> coord_map;
+        coord_map.reserve(all_values.size() * 2);
+        for (int i = 0; i < (int)all_values.size(); i++) {
+            coord_map[all_values[i]] = i;
+        }
+        
+        UnionFind uf(all_values.size());
         
         // Process equality constraints first
         for (const auto& constraint : constraints) {
             if (constraint.second == 1) {
-                uf.unite(constraint.first.first, constraint.first.second);
+                int x_idx = coord_map[constraint.first.first];
+                int y_idx = coord_map[constraint.first.second];
+                uf.unite(x_idx, y_idx);
             }
         }
         
@@ -78,7 +98,9 @@ int main() {
         // Check inequality constraints
         for (const auto& constraint : constraints) {
             if (constraint.second == 0) {
-                if (uf.connected(constraint.first.first, constraint.first.second)) {
+                int x_idx = coord_map[constraint.first.first];
+                int y_idx = coord_map[constraint.first.second];
+                if (uf.connected(x_idx, y_idx)) {
                     possible = false;
                     break;
                 }

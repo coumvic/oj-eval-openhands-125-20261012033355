@@ -1,13 +1,13 @@
 #include <iostream>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <algorithm>
 using namespace std;
 
 class UnionFind {
 private:
-    map<long long, long long> parent;
-    map<long long, long long> rank;
+    unordered_map<long long, long long> parent;
+    unordered_map<long long, long long> rank;
     
 public:
     long long find(long long x) {
@@ -61,19 +61,15 @@ int main() {
             long long x, y;
             int e;
             cin >> x >> y >> e;
-            constraints.push_back({{x, y}, e});
+            constraints.emplace_back(make_pair(x, y), e);
         }
         
         UnionFind uf;
         
         // Process equality constraints first
         for (const auto& constraint : constraints) {
-            long long x = constraint.first.first;
-            long long y = constraint.first.second;
-            int e = constraint.second;
-            
-            if (e == 1) {
-                uf.unite(x, y);
+            if (constraint.second == 1) {
+                uf.unite(constraint.first.first, constraint.first.second);
             }
         }
         
@@ -81,12 +77,8 @@ int main() {
         
         // Check inequality constraints
         for (const auto& constraint : constraints) {
-            long long x = constraint.first.first;
-            long long y = constraint.first.second;
-            int e = constraint.second;
-            
-            if (e == 0) {
-                if (uf.connected(x, y)) {
+            if (constraint.second == 0) {
+                if (uf.connected(constraint.first.first, constraint.first.second)) {
                     possible = false;
                     break;
                 }

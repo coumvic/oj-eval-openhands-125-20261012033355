@@ -54,8 +54,10 @@ int main() {
         int n;
         scanf("%d", &n);
         
-        vector<pair<pair<long long, long long>, int>> constraints;
-        constraints.reserve(n);
+        vector<pair<long long, long long>> equal_constraints;
+        vector<pair<long long, long long>> unequal_constraints;
+        equal_constraints.reserve(n);
+        unequal_constraints.reserve(n);
         
         vector<long long> all_values;
         all_values.reserve(n * 2);
@@ -64,9 +66,13 @@ int main() {
             long long x, y;
             int e;
             scanf("%lld %lld %d", &x, &y, &e);
-            constraints.emplace_back(make_pair(x, y), e);
             all_values.push_back(x);
             all_values.push_back(y);
+            if (e == 1) {
+                equal_constraints.emplace_back(x, y);
+            } else {
+                unequal_constraints.emplace_back(x, y);
+            }
         }
         
         // Coordinate compression
@@ -81,26 +87,22 @@ int main() {
         
         UnionFind uf(all_values.size());
         
-        // Process equality constraints first
-        for (const auto& constraint : constraints) {
-            if (constraint.second == 1) {
-                int x_idx = coord_map[constraint.first.first];
-                int y_idx = coord_map[constraint.first.second];
-                uf.unite(x_idx, y_idx);
-            }
+        // Process equality constraints
+        for (const auto& constraint : equal_constraints) {
+            int x_idx = coord_map[constraint.first];
+            int y_idx = coord_map[constraint.second];
+            uf.unite(x_idx, y_idx);
         }
         
         bool possible = true;
         
         // Check inequality constraints
-        for (const auto& constraint : constraints) {
-            if (constraint.second == 0) {
-                int x_idx = coord_map[constraint.first.first];
-                int y_idx = coord_map[constraint.first.second];
-                if (uf.connected(x_idx, y_idx)) {
-                    possible = false;
-                    break;
-                }
+        for (const auto& constraint : unequal_constraints) {
+            int x_idx = coord_map[constraint.first];
+            int y_idx = coord_map[constraint.second];
+            if (uf.connected(x_idx, y_idx)) {
+                possible = false;
+                break;
             }
         }
         
